@@ -33,40 +33,81 @@
 ]; //Массив данных - полученный откуда-то.
 
 
- class Barn{
-     private array $data;
-     private array $collection = [
-         "milk"=>0,"eggs"=>0
-     ];
+ abstract class Barn{
+     protected array $data;
+     protected static array $collection = [];
      public function __construct(array $data)//Объект принимает массив.
      {
         $this->data = $data;//Добаляет животных в хлев.
      }
-     private function milkCollect():int
-     {
-         return rand(8,12);
-     }
-     private function eggCollect():int
-     {
-         return rand(0,1);
-     }
-     public function AllCollect():void//метод собирает продукцию.
-     {  
-         foreach($this->data as $animal){
-             if($animal["animalType"]=="cow"){
-                 $this->collection["milk"]=$this->collection["milk"]+$this->milkCollect();
-             }elseif($animal["animalType"]=="chicken"){
-                $this->collection["eggs"]=$this->collection["eggs"]+$this->eggCollect();
-             }
-         }
-            
-     }
-     public function getCollection():void//метод выводит результат.
-     {  
-        echo "Всего:\n".$this->collection["milk"]." л. молока,\n".$this->collection["eggs"]." шт. яиц.";
-     }
- }
 
- $newDay = new Barn($animals);
- $newDay->AllCollect();
- $newDay->getCollection();
+     abstract protected function getSome():int;
+     abstract protected function productCollect():void;//"Доит коров и т.д."
+
+     protected function getData():array
+     {
+        return $this->data;
+     }
+     protected function getCollection():array
+     {
+        return self::$collection;
+     }
+     protected function setCollection(array $coll):void
+     {
+         self::$collection = $coll;
+     }
+     
+     public static function showResult():void//метод выводит результат.
+     {  
+         echo ("Всего:\n");
+         foreach(self::$collection as $coll){
+             echo ($coll);
+         }
+     }
+}
+
+class Cow extends Barn{
+    protected function getSome():int
+    {
+        return rand(8,12);
+    }
+    public function productCollect():void
+    {
+        $data=parent::getData();
+        $collect=parent::getCollection();
+        $collect["milk"]=0;
+        foreach($data as $d){
+            if($d["animalType"]=="cow"){
+                $collect["milk"]=$collect["milk"]+$this->getSome();
+            }
+        }
+        $collect["milk"]=(string)$collect["milk"]." л. молока\n";
+        parent::setCollection($collect);
+    }
+}
+
+class Chicken extends Barn{
+    protected function getSome():int
+    {
+        return rand(0,1);
+    }
+    public function productCollect():void{
+        $data=parent::getData();
+        $collect=parent::getCollection();
+        $collect["chicken"]=0;
+        foreach($data as $d){
+            if($d["animalType"]=="chicken"){
+                $collect["chicken"]=$collect["chicken"]+$this->getSome();
+            }
+        }
+        $collect["chicken"]=(string)$collect["chicken"]." шт. яиц\n";
+        parent::setCollection($collect);
+    }
+}
+
+$cow=new Cow($animals);
+$ch=new Chicken($animals);
+$cow->productCollect();
+$ch->productCollect();
+Barn::showResult();
+
