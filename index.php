@@ -1,35 +1,35 @@
 <?php
  $animals = [
-    ["animalId"=>0,"animalType"=>"cow"],
-    ["animalId"=>1,"animalType"=>"cow"],
-    ["animalId"=>2,"animalType"=>"cow"],
-    ["animalId"=>3,"animalType"=>"cow"],
-    ["animalId"=>4,"animalType"=>"cow"],
-    ["animalId"=>5,"animalType"=>"cow"],
-    ["animalId"=>6,"animalType"=>"cow"],
-    ["animalId"=>7,"animalType"=>"cow"],
-    ["animalId"=>8,"animalType"=>"cow"],
-    ["animalId"=>9,"animalType"=>"cow"],
-    ["animalId"=>10,"animalType"=>"chicken"],
-    ["animalId"=>11,"animalType"=>"chicken"],
-    ["animalId"=>12,"animalType"=>"chicken"],
-    ["animalId"=>13,"animalType"=>"chicken"],
-    ["animalId"=>14,"animalType"=>"chicken"],
-    ["animalId"=>15,"animalType"=>"chicken"],
-    ["animalId"=>16,"animalType"=>"chicken"],
-    ["animalId"=>17,"animalType"=>"chicken"],
-    ["animalId"=>18,"animalType"=>"chicken"],
-    ["animalId"=>19,"animalType"=>"chicken"],
-    ["animalId"=>20,"animalType"=>"chicken"],
-    ["animalId"=>21,"animalType"=>"chicken"],
-    ["animalId"=>22,"animalType"=>"chicken"],
-    ["animalId"=>23,"animalType"=>"chicken"],
-    ["animalId"=>24,"animalType"=>"chicken"],
-    ["animalId"=>25,"animalType"=>"chicken"],
-    ["animalId"=>26,"animalType"=>"chicken"],
-    ["animalId"=>27,"animalType"=>"chicken"],
-    ["animalId"=>28,"animalType"=>"chicken"],
-    ["animalId"=>29,"animalType"=>"chicken"],
+    ["animalId"=>0,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>1,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>2,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>3,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>4,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>5,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>6,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>7,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>8,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>9,"animalType"=>"cow", "products"=>["milk"]],
+    ["animalId"=>10,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>11,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>12,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>13,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>14,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>15,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>16,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>17,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>18,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>19,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>20,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>21,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>22,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>23,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>24,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>25,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>26,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>27,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>28,"animalType"=>"chicken", "products"=>["eggs"]],
+    ["animalId"=>29,"animalType"=>"chicken", "products"=>["eggs"]],
 ]; //Массив данных - полученный откуда-то.
 
 
@@ -41,7 +41,7 @@
         $this->data = $data;//Добаляет животных в хлев.
      }
 
-     abstract protected function getSome():int;
+     abstract protected function getSome($product):int;
      abstract protected function productCollect():void;//"Доит коров и т.д."
 
      protected function getData():array
@@ -66,48 +66,36 @@
      }
 }
 
-class Cow extends Barn{
-    protected function getSome():int
+class Animal extends Barn{
+    protected function getSome($product):int
     {
-        return rand(8,12);
+        if($product==="milk"){
+            return rand(8,12);
+        }elseif($product==="eggs"){
+            return rand(0,1);
+        }else{
+            echo "Некоректный продукт";
+            die;
+        }
     }
     public function productCollect():void
     {
         $data=parent::getData();
         $collect=parent::getCollection();
         $collect["milk"]=0;
+        $collect["eggs"]=0;
         foreach($data as $d){
-            if($d["animalType"]=="cow"){
-                $collect["milk"]=$collect["milk"]+$this->getSome();
+            foreach($d["products"] as $prod){//цикл для проверки продуктов(если на 1 животное будет более одного продукта)
+                $collect[$prod]=$collect[$prod]+$this->getSome($prod);
             }
         }
         $collect["milk"]=(string)$collect["milk"]." л. молока\n";
+        $collect["eggs"]=(string)$collect["eggs"]." шт. яиц\n";
         parent::setCollection($collect);
     }
 }
 
-class Chicken extends Barn{
-    protected function getSome():int
-    {
-        return rand(0,1);
-    }
-    public function productCollect():void{
-        $data=parent::getData();
-        $collect=parent::getCollection();
-        $collect["chicken"]=0;
-        foreach($data as $d){
-            if($d["animalType"]=="chicken"){
-                $collect["chicken"]=$collect["chicken"]+$this->getSome();
-            }
-        }
-        $collect["chicken"]=(string)$collect["chicken"]." шт. яиц\n";
-        parent::setCollection($collect);
-    }
-}
-
-$cow=new Cow($animals);
-$ch=new Chicken($animals);
-$cow->productCollect();
-$ch->productCollect();
+$animal=new Animal($animals);
+$animal->productCollect();
 Barn::showResult();
 
